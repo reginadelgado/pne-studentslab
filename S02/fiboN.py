@@ -8,7 +8,7 @@ def fibon(n):
         n2 = n3
 
     nth_term = n1
-    print(str(n) + "th Fibonacci term is: " + str(nth_term))
+    print(str(n) + "th Fibonacci term is: " + str(nth_term) + ".")
 
 fibon(5)
 fibon(10)

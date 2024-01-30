@@ -8,7 +8,7 @@ def fibosum(n):
         n2 = n3
         sum += n1
 
-    print("The sum of the first " + str(n) + "terms of the Fibonacci series is: " + str(sum))
+    print("The sum of the first " + str(n) + "terms of the Fibonacci series is: " + str(sum) + ".")
 
 fibosum(5)
 fibosum(10)
