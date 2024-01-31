@@ -1,7 +1,7 @@
-sequences = []
+sequence = ""
 with open("dna.txt", "r") as f:
     for line in f:
-        sequences.append(line.replace("\n", ""))
+        sequence += line.replace("\n", "")
 def dna_count(seq):
     print("Sequence:", seq)
     dictionary = {"A": 0, "C": 0, "T": 0, "G": 0}
@@ -12,5 +12,4 @@ def dna_count(seq):
     for letter, count in dictionary.items():
         print(letter + ": " + str(count))
 
-for seq in sequences:
-    dna_count(seq)
+dna_count(sequence)
