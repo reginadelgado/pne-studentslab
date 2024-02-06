@@ -1,2 +1,3 @@
 The bug is happening because when calculating t3 it is posible that appears a ZeroValueError in case that c and d are equal.
 This is because the variable t1 is depending on the subtraction of b and c, and if they are equal t1 will be 0
+Therefore the bug can be fixed adding an exception ZeroValueError
