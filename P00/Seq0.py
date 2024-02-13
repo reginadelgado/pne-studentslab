@@ -28,10 +28,14 @@ def seq_count(seq):
         dictionary[e] += 1
     return dictionary
 
-def seq_reverse(seq, n):
+def seq_reverse(seq, n = None):
     new_seq = ""
-    for i in range(n):
-        new_seq = seq[i] + new_seq
+    if n == None:
+        for i in seq:
+            new_seq = i + new_seq
+    else:
+        for i in range(n):
+            new_seq = seq[i] + new_seq
     return new_seq
 
 def seq_complement(seq):
@@ -41,3 +45,13 @@ def seq_complement(seq):
         c_seq += c_dict[base]
 
     return c_seq
+
+def seq_check(seq):
+    count = 0
+    valid = False
+    for b in seq:
+        if b in ["A", "T", "G", "C"]:
+            count += 1
+    if count == len(seq):
+        valid = True
+    return valid
