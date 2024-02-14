@@ -45,13 +45,3 @@ def seq_complement(seq):
         c_seq += c_dict[base]
 
     return c_seq
-
-def seq_check(seq):
-    count = 0
-    valid = False
-    for b in seq:
-        if b in ["A", "T", "G", "C"]:
-            count += 1
-    if count == len(seq):
-        valid = True
-    return valid
