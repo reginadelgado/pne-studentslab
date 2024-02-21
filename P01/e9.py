@@ -4,7 +4,7 @@ print("-----| Practice 1, Exercise 9 |------")
 s = Seq()
 
 # -- Initialize the null seq with the given file in fasta format
-s.read_fasta("U5.txt")
+s.read_fasta("FRAT1.txt")
 
 print(f"Sequence: (Length: {s.len()}) {s}")
 print("Bases:", s.count())

@@ -3,7 +3,7 @@ class Seq:
     def __init__(self, strbases=None):
         # Initialize the sequence with the value
         # passed as argument when creating the object
-        if strbases == None:
+        if strbases is None or strbases == "":
             self.strbases = "NULL"
             print("NULL sequence created")
 
