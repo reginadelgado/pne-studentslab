@@ -76,4 +76,4 @@ class Seq:
 
         first_line = file_contents.find("\n")
         sequence = file_contents[first_line:].replace("\n", "")
-        return sequence
+        self.strbases = sequence
