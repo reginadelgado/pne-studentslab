@@ -4,8 +4,12 @@ from termcolor import *
 
 #IP uni: 212.128.255.82
 #IP casa: 192.168.1.46
+PRACTICE = 2
+EXERCISE = 4
 
-IP = "192.168.1.46" # your IP address
+print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
+
+IP = "212.128.255.82" # your IP address
 PORT = 8081
 
 # -- Create a client object
@@ -19,7 +23,7 @@ gene_list = ["U5", "FRAT1", "ADA"]
 for name in gene_list:
     msg = f"Sending {name} Gene to the server..."
     print(f"To Server: {colored(msg, 'blue')}")
-    response = c.talk(msg)
+    response = c.talk(colored(msg, 'yellow'))
     print(f"From Server\n\n{colored(response, 'yellow')}")
 
     gene = Seq()
@@ -27,5 +31,5 @@ for name in gene_list:
     gene.read_fasta(filename)
 
     print(f"To Server: {colored(str(gene), 'blue')}")
-    response2 = c.talk(str(gene))
+    response2 = c.talk(colored(str(gene), 'yellow'))
     print(f"From Server\n\n{colored(response2, 'yellow')}")

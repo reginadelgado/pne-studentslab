@@ -1,10 +1,16 @@
 from Seq1 import Seq
 from Client0 import Client
+from termcolor import *
+
+PRACTICE = 2
+EXERCISE = 6
+
+print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 
 #IP uni: 212.128.255.82
 #IP casa: 192.168.1.46
 
-IP = "192.168.1.46" # your IP address
+IP = "212.128.255.82" # your IP address
 PORT = 8080
 PORT2 = 8081
 
@@ -22,8 +28,9 @@ s.read_fasta("FRAT1.txt")
 seq = str(s)
 print(f"Gene FRAT1: {s}")
 
-c1.talk("Sending FRAT1 Gene to the server, in fragments of 10 bases...")
-c2.talk("Sending FRAT1 Gene to the server, in fragments of 10 bases...")
+m = colored("Sending FRAT1 Gene to the server, in fragments of 10 bases...", "yellow")
+c1.talk(m)
+c2.talk(m)
 
 n1, n2 = 0, 10
 for i in range(10):
@@ -31,8 +38,8 @@ for i in range(10):
     msg = f"Fragment {i + 1}: {fragment}"
     print(msg)
     if i % 2 == 0:
-        c1.talk(msg)
+        c1.talk(colored(msg, "yellow"))
     else:
-        c2.talk(msg)
+        c2.talk(colored(msg, "yellow"))
     n1 += 10
     n2 += 10
