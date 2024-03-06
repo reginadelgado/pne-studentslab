@@ -1,4 +1,5 @@
 import socket
+from termcolor import *
 
 # Configure the Server's IP and PORT
 PORT = 8080
@@ -17,6 +18,8 @@ ls.bind((IP, PORT))
 ls.listen()
 
 print("The server is configured!")
+
+number_con = 0
 
 while True:
     # -- Waits for a client to connect
@@ -38,8 +41,9 @@ while True:
     # -- Execute this part if there are no errors
     else:
 
-        print("A client has connected to the server!")
+        number_con += 1
 
+        print(f"CONNECTION: {number_con}. From the IP: {client_ip_port}")
         # -- Read the message from the client
         # -- The received message is in raw bytes
         msg_raw = cs.recv(2048)
@@ -49,10 +53,10 @@ while True:
         msg = msg_raw.decode()
 
         # -- Print the received message
-        print(f"Message received: {msg}")
+        print(f"Message received: {colored(msg, 'green')}")
 
         # -- Send a response message to the client
-        response = "HELLO. I am the Happy Server :-)\n"
+        response = f"ECHO: {msg}"
 
         # -- The message has to be encoded into bytes
         cs.send(response.encode())
