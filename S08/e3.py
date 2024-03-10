@@ -1,8 +1,8 @@
 import socket
 
 # SERVER IP, PORT
-PORT = 8081
-IP = "212.128.255.81" # depends on the computer the server is running
+PORT = 8080
+IP = "127.0.0.1" # depends on the computer the server is running
 
 while True:
     msg = input("Enter your message: ")
