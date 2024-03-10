@@ -50,6 +50,13 @@ class Seq:
                 dictionary[e] += 1
         return dictionary
 
+    def percentage(self, base):
+        p = 0
+        if self.strbases not in ["NULL", "ERROR"]:
+            count = self.count_base(base)
+            p = round((count / self.len()) * 100, 1)
+        return str(p) + "%"
+
     def reverse(self):
         rev = ""
         if self.strbases in ["NULL", "ERROR"]:
