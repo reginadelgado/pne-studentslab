@@ -1,11 +1,11 @@
-from Client0 import Client
+import Client0
 
 print(f"-----| Practice 3, Exercise 7 |------")
 
 PORT = 8080
 IP = "127.0.0.1"
 
-c = Client(IP, PORT)
+c = Client0.Client(IP, PORT)
 
 print(c)
 
