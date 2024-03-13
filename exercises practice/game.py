@@ -10,7 +10,7 @@ class NumberGuesser:
     def guess(self, number):
         if number == self.secret_number:
             self.attempts.append(number)
-            r = f"You won after {len(self.attempts)}"
+            r = f"You won after {len(self.attempts)} attempts"
         elif number > self.secret_number:
             self.attempts.append(number)
             r = "Higher"
