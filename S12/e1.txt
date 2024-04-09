@@ -1,0 +1,17 @@
+for URL: http://127.0.0.1:8080/hello
+
+1. Which is the request line?
+GET /hello HTTP/1.1
+
+2. Which is the resource that the client is asking for? (the path)
+
+
+for URL: http://127.0.0.1:8080/file.html
+
+1. GET /file.html HTTP/1.1
+2.
+
+for URL: http://127.0.0.1:8080/hi/there?name=virus&type=corona
+
+1. GET /hi/there?name=virus&type=corona HTTP/1.1
+2.
