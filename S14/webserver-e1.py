@@ -34,9 +34,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             contents = "Resource not available"
             self.send_response(400)  # -- Status line: OK!
 
-        # Generating the response message
-        self.send_response(200)  # -- Status line: OK!
-
         # Define the content-type header:
         self.send_header('Content-Type', 'text/plain')
         self.send_header('Content-Length', len(contents.encode()))
