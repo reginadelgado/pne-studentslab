@@ -35,11 +35,12 @@ def process_client(s, list):
     # This new contents are written in HTML language
     if s_req_line[1] in list:
         body = Path(f"html{s_req_line[1]}.html").read_text()
+        # -- Status line: We respond that everything is ok (200 code)
+        status_line = "HTTP/1.1 200 OK\n"
+
     else:
         body = Path(f"html/info/error.html").read_text()
-
-    # -- Status line: We respond that everything is ok (200 code)
-    status_line = "HTTP/1.1 200 OK\n"
+        status_line = "HTTP/1.1 404 Not Found\n"
 
     # -- Add the Content-Type header
     header = "Content-Type: text/html\n"
