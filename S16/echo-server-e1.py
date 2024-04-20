@@ -2,6 +2,7 @@ import http.server
 import socketserver
 import termcolor
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 # Define the Server's port
 PORT = 8080
@@ -22,12 +23,26 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # Print the request line
         termcolor.cprint(self.requestline, 'green')
 
-        # Open the form1.html file
-        # Read the index from the file
-        contents = Path('html/form-e1.html').read_text()
+        url_path = urlparse(self.path)
+        path = url_path.path
 
-        # Generating the response message
-        self.send_response(200)  # -- Status line: OK!
+        if path == "/":
+            # Open the form1.html file
+            contents = Path('html/form-1.html').read_text()
+
+            # Generating the response message
+            self.send_response(200)  # -- Status line: OK!
+
+        elif path == "/echo":
+            arguments = parse_qs(url_path.query)
+            message = arguments.get("msg", [""])
+            contents = Path('html/form-e1.html').read_text()
+            contents = contents.replace("{message}", message[0])
+            self.send_response(200)
+
+        else:
+            contents = Path("html/error.html").read_text()
+            self.send_response(404)
 
         # Define the content-type header:
         self.send_header('Content-Type', 'text/html')
