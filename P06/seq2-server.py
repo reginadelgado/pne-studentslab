@@ -3,6 +3,7 @@ import socketserver
 import termcolor
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
+import jinja2 as j
 
 # Define the Server's port
 PORT = 8080
@@ -10,7 +11,10 @@ PORT = 8080
 
 # -- This is for preventing the error: "Port already in use"
 socketserver.TCPServer.allow_reuse_address = True
-
+def read_html_file(filename):
+    contents = Path("html/" + filename).read_text()
+    contents = j.Template(contents)
+    return contents
 
 # Class with our Handler. It is a called derived from BaseHTTPRequestHandler
 # It means that our class inherits all his methods and properties
@@ -25,6 +29,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         url_path = urlparse(self.path)
         path = url_path.path
+        arguments = parse_qs(url_path.query)
 
         if path == "/":
             # Open the form1.html file
@@ -35,6 +40,21 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif path == "/ping":
             contents = Path('html/ping.html').read_text()
+            self.send_response(200)
+
+        elif path == "/get":
+            s1 = "ACCTCCTCTCCAGCAATGCCAACCCCAGTCCAGGCCCCCATCCGCCCAGGATCTCGATCA"
+            s2 = "AAAAACATTAATCTGTGGCCTTTCTTTGCCATTTCCAACTCTGCCACCTCCATCGAACGA"
+            s3 = "CAAGGTCCCCTTCTTCCTTTCCATTCCCGTCAGCTTCATTTCCCTAATCTCCGTACAAAT"
+            s4 = "CCCTAGCCTGACTCCCTTTCCTTTCCATCCTCACCAGACGCCCGCATGCCGGACCTCAAA"
+            s5 = "AGCGCAAACGCTAAAAACCGGTTGAGTTGACGCACGGAGAGAAGGGGTGTGTGGGTGGGT"
+
+            seq_list = [s1, s2, s3, s4, s5]
+            n = arguments.get("n")[0]
+            seq = seq_list[int(n)]
+
+            contents = read_html_file('html/get.html').render(context={"todisplay": seq})
+
             self.send_response(200)
 
         else:
