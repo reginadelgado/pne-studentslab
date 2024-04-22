@@ -68,6 +68,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 elif path == "/operation":
                     seq = arguments.get("seq",[""])[0]
+                    operation = arguments.get("operation",[""])[0]
+
+                    if operation == "Info":
+                        pass
+                    elif operation == "Comp":
+                        pass
+                    elif operation == "Rev":
+                        pass
 
                 self.send_response(200)
 
