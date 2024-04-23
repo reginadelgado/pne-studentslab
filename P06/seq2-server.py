@@ -9,13 +9,15 @@ from Seq1 import Seq
 # Define the Server's port
 PORT = 8080
 
-
 # -- This is for preventing the error: "Port already in use"
 socketserver.TCPServer.allow_reuse_address = True
+
+
 def read_html_file(filename):
     contents = Path("html" + filename).read_text()
     contents = j.Template(contents)
     return contents
+
 
 # Class with our Handler. It is a called derived from BaseHTTPRequestHandler
 # It means that our class inherits all his methods and properties
@@ -43,7 +45,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             try:
                 contents = read_html_file(path + ".html")
                 if path == "/ping":
-                    pass
+                    contents = Path('html/ping.html').read_text()
 
                 elif path == "/get":
                     s1 = "ACCTCCTCTCCAGCAATGCCAACCCCAGTCCAGGCCCCCATCCGCCCAGGATCTCGATCA"
@@ -67,16 +69,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = contents.render(context={"gene": seq, "name": name})
 
                 elif path == "/operation":
-                    seq = arguments.get("seq",[""])[0]
-                    operation = arguments.get("operation",[""])[0]
+                    seq = arguments.get("seq", [""])[0]
+                    operation = arguments.get("operation", [""])[0]
+                    seq = Seq(seq)
 
                     if operation == "Info":
-                        pass
-                    elif operation == "Comp":
-                        pass
-                    elif operation == "Rev":
-                        pass
+                        result = f"Total length: {seq.len()}"
+                        for i in ["A", "C", "G", "T"]:
+                            result += f"<br>{i}: {seq.count_base(i)} ({seq.percentage(i)})"
 
+                    elif operation == "Comp":
+                        result = seq.complement()
+
+                    elif operation == "Rev":
+                        result = seq.reverse()
+
+                    contents = contents.render(context={"seq": seq, "operation": operation, "result": result})
                 self.send_response(200)
 
             except (FileNotFoundError, TypeError, IndexError):
@@ -104,7 +112,6 @@ Handler = TestHandler
 
 # -- Open the socket server
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
-
     print("Serving at PORT", PORT)
 
     # -- Main loop: Attend the client. Whenever there is a new
