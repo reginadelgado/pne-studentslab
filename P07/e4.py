@@ -45,10 +45,26 @@ data1 = r1.read().decode("utf-8")
 g = json.loads(data1)
 
 termcolor.cprint("Gene: ", 'yellow', end='')
-print("MIR633")
+print(gene)
 
 termcolor.cprint("Description: ", 'yellow', end='')
 print(g["desc"])
 
-termcolor.cprint("Bases: ", 'yellow', end='')
-print(g["seq"])
+gene = Seq(g["seq"])
+
+termcolor.cprint("Total length: ", 'yellow', end='')
+print(gene.len())
+
+dict_bases = gene.count()
+
+mf_base = None
+higher_value = None
+for base, count in dict_bases.items():
+    termcolor.cprint(f"{base}: ", 'blue', end='')
+    print(f"{count} ({gene.percentage(base)})")
+    if higher_value is None or count > higher_value:
+        mf_base = base
+        higher_value = count
+
+termcolor.cprint("Most frequent base: ", 'yellow', end='')
+print(mf_base)
