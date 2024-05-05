@@ -8,6 +8,12 @@ def seq_read_fasta(filename):
 
     first_line = file_contents.find("\n")
     sequence = file_contents[first_line:].replace("\n", "")
+    count = 0
+    for b in sequence:
+        if b in ["A", "T", "G", "C"]:
+            count += 1
+    if count != len(sequence):
+        sequence = "Not valid sequence"
     return sequence
 
 def seq_len(seq):
