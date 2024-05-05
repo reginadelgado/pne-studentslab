@@ -4,7 +4,7 @@ import socket
 #IP uni: 212.128.255.82
 #IP casa: 192.168.1.46
 PORT = 8081
-IP = "212.128.255.82" # it depends on the machine the server is running
+IP = "127.0.0.1" # it depends on the machine the server is running
 MAX_OPEN_REQUESTS = 5
 
 # Counting the number of connections
