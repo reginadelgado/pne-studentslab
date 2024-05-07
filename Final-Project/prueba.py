@@ -1,11 +1,10 @@
 import http.client
 import json
 
-#def c(path, specie=None,  )
 
 SERVER = "rest.ensembl.org"
 PARAMS = "?content-type=application/json"
-ENDPOINT = "/info/species"
+ENDPOINT = "/info/assembly/homo_sapiens"
 
 URL = SERVER + ENDPOINT + PARAMS
 
@@ -35,12 +34,5 @@ data1 = r1.read().decode("utf-8")
 # -- Transform it into JSON format
 response = json.loads(data1)
 
-all_species = response["species"]
-
-names = ""
-print(f"The total number of species in esambl {len(all_species)}")
-for i in range(10):
-    s = all_species[i]
-    n = s["display_name"]
-    names += f"-{n}\n"
-print(names)
+karyotype = response["karyotype"]
+print(karyotype)
