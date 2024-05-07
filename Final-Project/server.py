@@ -107,12 +107,28 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     k_names = ""
                     for k in karyotype:
                         k_names += f"{k}<br>"
-                    t = f"The names of the chromosomes are: <br><br> {k_names}"
-                    contents = contents.render(context={"t": t})
+                    contents = contents.render(context={"k_names": k_names})
+
+                elif path == "/chromosomeLength":
+                    contents = read_html_file("chromosome.html")
+                    species_name = arguments.get("species")[0]
+                    species_name = species_name.replace(" ", "_")
+                    endpoint = "/info/assembly/" + species_name
+                    species = c(endpoint)
+                    chromosome = arguments.get("chromo")[0]
+
+                    l = species["top_level_region"]
+                    d = {}
+                    for e in l:
+                        if e["coord_system"] == "chromosome":
+                            d[int(e["name"])] = e
+
+                    length = d[chromosome]["length"]
+                    contents = contents.render(context={"len": length})
 
                 self.send_response(200)
 
-            except (FileNotFoundError, TypeError, IndexError, ConnectionRefusedError):
+            except (FileNotFoundError, TypeError, IndexError, ConnectionRefusedError, KeyError):
                 contents = Path("error.html").read_text()
                 self.send_response(404)
 

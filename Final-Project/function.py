@@ -32,15 +32,13 @@ def c(endpoint):
     return response
 
 
-endpoint = "/info/species"
+endpoint = "/info/assembly/human"
 
 species = c(endpoint)
-all_species = species["species"]
+l = species["top_level_region"]
+d = {}
+for e in l:
+    if e["coord_system"] == "chromosome":
+        d[e["name"]] = e
 
-names = ""
-print(f"The total number of species in esambl {len(all_species)}")
-for i in range(10):
-    s = all_species[i]
-    n = s["display_name"]
-    names += f"-{n}\n"
-print(names)
+print(d["4"])
