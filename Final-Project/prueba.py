@@ -1,6 +1,7 @@
 import http.client
 import json
 
+#def c(path, specie=None,  )
 
 SERVER = "rest.ensembl.org"
 PARAMS = "?content-type=application/json"
@@ -37,8 +38,8 @@ response = json.loads(data1)
 all_species = response["species"]
 
 names = ""
-
-for i in range(40):
+print(f"The total number of species in esambl {len(all_species)}")
+for i in range(10):
     s = all_species[i]
     n = s["display_name"]
     names += f"-{n}\n"

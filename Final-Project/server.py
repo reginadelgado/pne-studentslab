@@ -117,3 +117,7 @@ with socketserver.TCPServer(("", PORT), Handler) as httpd:
         print("")
         print("Stopped by the user")
         httpd.server_close()
+
+#preguntas:
+#los nombres de las especies que usar (common name, name o display name) para lo primero y para cuando escribes el nombre tambien
+#si la info de los genes va con el ID como saber cual es el ID segun el nombre del gen
