@@ -40,5 +40,6 @@ d = {}
 for e in l:
     if e["coord_system"] == "chromosome":
         d[e["name"]] = e
-
-print(d["4"])
+print (d)
+number = input("Write a number: ")
+print(d[number])

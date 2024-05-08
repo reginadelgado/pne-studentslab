@@ -115,15 +115,21 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     species_name = species_name.replace(" ", "_")
                     endpoint = "/info/assembly/" + species_name
                     species = c(endpoint)
-                    chromosome = arguments.get("chromo")[0]
+                    c_name = arguments.get("chromo")[0]
 
-                    l = species["top_level_region"]
-                    d = {}
-                    for e in l:
-                        if e["coord_system"] == "chromosome":
-                            d[int(e["name"])] = e
+                    tlr = species.get("top_level_region")
 
-                    length = d[chromosome]["length"]
+                    chromosomes_dict = {}
+                    for e in tlr:
+                        name = e.get("name")
+                        cs = e.get("coord_system")
+                        if cs == "chromosome":
+                            chromosomes_dict[name] = e
+
+                    print(chromosomes_dict)
+                    ch = chromosomes_dict.get(c_name)
+
+                    length = ch.get("length")
                     contents = contents.render(context={"len": length})
 
                 self.send_response(200)
@@ -163,4 +169,3 @@ with socketserver.TCPServer(("", PORT), Handler) as httpd:
         print("")
         print("Stopped by the user")
         httpd.server_close()
-
