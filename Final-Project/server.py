@@ -119,17 +119,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                     tlr = species.get("top_level_region")
 
-                    chromosomes_dict = {}
                     for e in tlr:
                         name = e.get("name")
                         cs = e.get("coord_system")
-                        if cs == "chromosome":
-                            chromosomes_dict[name] = e
+                        if cs == "chromosome" and name == c_name:
+                            length = e.get("length")
 
-                    print(chromosomes_dict)
-                    ch = chromosomes_dict.get(c_name)
-
-                    length = ch.get("length")
                     contents = contents.render(context={"len": length})
 
                 self.send_response(200)
