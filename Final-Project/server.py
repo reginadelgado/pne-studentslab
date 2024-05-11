@@ -111,14 +111,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 elif path == "/chromosomeLength":
                     contents = read_html_file("chromosome.html")
-                    species_name = arguments.get("species")[0]
+                    species_name = arguments.get("species")[0].lower()
                     species_name = species_name.replace(" ", "_")
                     endpoint = "/info/assembly/" + species_name
                     species = c(endpoint)
                     c_name = arguments.get("chromo")[0]
 
                     tlr = species.get("top_level_region")
-
+                    length = 0
                     for e in tlr:
                         name = e.get("name")
                         cs = e.get("coord_system")
@@ -126,6 +126,41 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                             length = e.get("length")
 
                     contents = contents.render(context={"len": length})
+
+                elif path == "/geneSeq":
+                    contents = read_html_file("geneSeq.html")
+                    g_name = arguments.get("gene")[0]
+                    endpoint = "/xrefs/symbol/homo_sapiens/" + g_name
+                    gene_info = c(endpoint)
+                    g_id = ""
+                    for e in gene_info:
+                        if len(e.get("id")) == 15:
+                            g_id = e.get("id")
+
+                    endpoint = "/sequence/id/" + g_id
+                    gene = c(endpoint)
+                    seq = gene["seq"]
+                    contents = contents.render(context={"gene": seq, "name": g_name})
+
+                elif path == "/geneInfo":
+                    contents = read_html_file("geneInfo.html")
+                    g_name = arguments.get("gene")[0]
+                    endpoint = "/xrefs/symbol/homo_sapiens/" + g_name
+                    gene_info = c(endpoint)
+                    g_id = ""
+                    for e in gene_info:
+                        if len(e.get("id")) == 15:
+                            g_id = e.get("id")
+
+                    endpoint = "/lookup/id/" + g_id
+                    info = c(endpoint)
+                    start = info.get("start")
+                    end = info.get("end")
+                    chromo = info.get("seq_region_name")
+                    length = int(end) - int(start)
+
+                    contents = contents.render(context={"name": g_name, "start": start, "end": end, "chromo": chromo,
+                                                        "length": length, "id": g_id})
 
                 self.send_response(200)
 
