@@ -16,9 +16,9 @@ PORT = 8080
 socketserver.TCPServer.allow_reuse_address = True
 
 
-def c(endpoint):
+def c(endpoint, extra_params=""):
     server = "rest.ensembl.org"
-    params = "?content-type=application/json"
+    params = f"?{extra_params}content-type=application/json"
 
     # Connect with the server
     conn = http.client.HTTPConnection(server)
@@ -52,6 +52,17 @@ def read_html_file(filename):
     return contents
 
 
+def get_gene_id(gene_name):
+    endpoint = "/xrefs/symbol/homo_sapiens/" + gene_name
+    gene_info = c(endpoint)
+    g_id = ""
+    for e in gene_info:
+        if len(e.get("id")) == 15:
+            g_id = e.get("id")
+
+    return g_id
+
+
 # Class with our Handler. It is a called derived from BaseHTTPRequestHandler
 # It means that our class inherits all his methods and properties
 class TestHandler(http.server.BaseHTTPRequestHandler):
@@ -66,6 +77,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         url_path = urlparse(self.path)
         path = url_path.path
         arguments = parse_qs(url_path.query)
+        json_requested = "json" in arguments and arguments["json"][0] == "1"
         contents = ""
 
         if path == "/":
@@ -101,7 +113,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file("karyotype.html")
                     species_name = arguments.get("species")[0]
                     species_name = species_name.replace(" ", "_")
-                    endpoint = "/info/assembly/" + species_name
+                    endpoint = f"/info/assembly/{species_name}"
                     species = c(endpoint)
                     karyotype = species["karyotype"]
                     k_names = ""
@@ -113,7 +125,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file("chromosome.html")
                     species_name = arguments.get("species")[0].lower()
                     species_name = species_name.replace(" ", "_")
-                    endpoint = "/info/assembly/" + species_name
+                    endpoint = f"/info/assembly/{species_name}"
                     species = c(endpoint)
                     c_name = arguments.get("chromo")[0]
 
@@ -130,14 +142,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 elif path == "/geneSeq":
                     contents = read_html_file("geneSeq.html")
                     g_name = arguments.get("gene")[0]
-                    endpoint = "/xrefs/symbol/homo_sapiens/" + g_name
-                    gene_info = c(endpoint)
-                    g_id = ""
-                    for e in gene_info:
-                        if len(e.get("id")) == 15:
-                            g_id = e.get("id")
+                    g_id = get_gene_id(g_name)
 
-                    endpoint = "/sequence/id/" + g_id
+                    endpoint = f"/sequence/id/{g_id}"
                     gene = c(endpoint)
                     seq = gene["seq"]
                     contents = contents.render(context={"gene": seq, "name": g_name})
@@ -145,14 +152,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 elif path == "/geneInfo":
                     contents = read_html_file("geneInfo.html")
                     g_name = arguments.get("gene")[0]
-                    endpoint = "/xrefs/symbol/homo_sapiens/" + g_name
-                    gene_info = c(endpoint)
-                    g_id = ""
-                    for e in gene_info:
-                        if len(e.get("id")) == 15:
-                            g_id = e.get("id")
+                    g_id = get_gene_id(g_name)
 
-                    endpoint = "/lookup/id/" + g_id
+                    endpoint = f"/lookup/id/{g_id}"
                     info = c(endpoint)
                     start = info.get("start")
                     end = info.get("end")
@@ -161,6 +163,46 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                     contents = contents.render(context={"name": g_name, "start": start, "end": end, "chromo": chromo,
                                                         "length": length, "id": g_id})
+                elif path == "/geneCalc":
+                    contents = read_html_file("geneCalc.html")
+                    g_name = arguments.get("gene")[0]
+                    g_id = get_gene_id(g_name)
+
+                    endpoint = f"/sequence/id/{g_id}"
+                    gene = c(endpoint)
+                    seq = gene["seq"]
+                    seq = Seq(seq)
+                    length = seq.len()
+
+                    p_dict = {"A": seq.percentage("A"), "T": seq.percentage("T"), "G": seq.percentage("G"),
+                              "C": seq.percentage("C")}
+
+                    percentages = ""
+                    for b in p_dict:
+                        percentages += f"{b}: {p_dict[b]} <br>"
+
+                    contents = contents.render(context={"length": length, "percentages": percentages, "name": g_name})
+
+                elif path == "/geneList": #arreglar
+                    contents = read_html_file("geneList.html")
+                    chromo = arguments.get("chromo")
+                    start = arguments.get("start")
+                    end = arguments.get("end")
+
+                    endpoint = f"/overlap/region/human/{chromo}:{start}-{end}"
+                    extra_params = "feature=gene;feature=transcript;feature=cds;feature=exon;"
+                    gene_dict = c(endpoint, extra_params)
+
+                    print(gene_dict)
+                    names_list = []
+                    for g in gene_dict:
+                        names_list.append(g.get("external_name"))
+
+                    names = ""
+                    for g in names_list:
+                        names += f"- {g} <br>"
+
+                    contents = contents.render(context={"chromo": chromo, "start": start, "end": end, "genes": names})
 
                 self.send_response(200)
 

@@ -44,5 +44,23 @@
             <input type="text" name="gene"><br><br>
             <input type="submit" value="Send">
         </form>
+
+        <p>6) Get calculations of a human gene </p>
+        <form action="geneCalc" method="get">
+            Select a gene:
+            <input type="text" name="gene"><br><br>
+            <input type="submit" value="Send">
+        </form>
+
+        <p>7) List of names of the genes located in a chromosome at an specific region</p>
+        <form action="geneList" method="get">
+            Select a chromosome:
+            <input type="text" name="chromo"><br><br>
+            Select the start position:
+            <input type="text" name="start"><br><br>
+            Select the end position:
+            <input type="text" name="end"><br><br>
+            <input type="submit" value="Send">
+        </form>
     </body>
     </html>
