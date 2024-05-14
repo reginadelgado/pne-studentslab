@@ -20,6 +20,8 @@ def c(endpoint, extra_params=""):
     server = "rest.ensembl.org"
     params = f"?{extra_params}content-type=application/json"
 
+    url = server + endpoint + params
+    print(url)
     # Connect with the server
     conn = http.client.HTTPConnection(server)
 
@@ -159,7 +161,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     start = info.get("start")
                     end = info.get("end")
                     chromo = info.get("seq_region_name")
-                    length = int(end) - int(start)
+                    length = int(end) - int(start) + 1
 
                     contents = contents.render(context={"name": g_name, "start": start, "end": end, "chromo": chromo,
                                                         "length": length, "id": g_id})
@@ -185,19 +187,21 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 elif path == "/geneList": #arreglar
                     contents = read_html_file("geneList.html")
-                    chromo = arguments.get("chromo")
-                    start = arguments.get("start")
-                    end = arguments.get("end")
+                    chromo = arguments.get("chromo")[0]
+                    start = arguments.get("start")[0]
+                    end = arguments.get("end")[0]
 
                     endpoint = f"/overlap/region/human/{chromo}:{start}-{end}"
                     extra_params = "feature=gene;feature=transcript;feature=cds;feature=exon;"
-                    gene_dict = c(endpoint, extra_params)
 
-                    print(gene_dict)
+                    region = c(endpoint, extra_params)
+                    print(region)
                     names_list = []
-                    for g in gene_dict:
-                        names_list.append(g.get("external_name"))
-
+                    for e in region:
+                        if e.get("feature_type") == "gene":
+                            if e.get("external_name"):
+                                names_list.append(e.get("external_name"))
+                    #añadir que pasa si esta vacia la lista
                     names = ""
                     for g in names_list:
                         names += f"- {g} <br>"
@@ -206,7 +210,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 self.send_response(200)
 
-            except (FileNotFoundError, TypeError, IndexError, ConnectionRefusedError, KeyError):
+            except (FileNotFoundError, TypeError, IndexError, ConnectionRefusedError, KeyError, AttributeError):
                 contents = Path("error.html").read_text()
                 self.send_response(404)
 

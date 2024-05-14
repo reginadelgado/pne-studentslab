@@ -3,8 +3,8 @@ import json
 
 
 SERVER = "rest.ensembl.org"
-PARAMS = "?content-type=application/json"
-ENDPOINT = "/info/assembly/homo_sapiens"
+PARAMS = "?feature=gene;feature=transcript;feature=cds;feature=exon;content-type=application/json"
+ENDPOINT = "/overlap/region/human/7:140424943-140624564"
 
 URL = SERVER + ENDPOINT + PARAMS
 
@@ -33,6 +33,9 @@ data1 = r1.read().decode("utf-8")
 
 # -- Transform it into JSON format
 response = json.loads(data1)
+print(response)
+for e in response:
+    if e.get("feature_type") == "gene":
+        if e.get("external_name"):
+            print(e.get("external_name"))
 
-karyotype = response["karyotype"]
-print(karyotype)
