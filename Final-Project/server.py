@@ -21,7 +21,8 @@ def c(endpoint, extra_params=""):
     params = f"?{extra_params}content-type=application/json"
 
     url = server + endpoint + params
-    print(url)
+    # print(url)
+
     # Connect with the server
     conn = http.client.HTTPConnection(server)
 
@@ -59,8 +60,8 @@ def get_gene_id(gene_name):
     gene_info = c(endpoint)
     g_id = ""
     for e in gene_info:
-        if len(e.get("id")) == 15:
-            g_id = e.get("id")
+        if len(e["id"]) == 15 and e["type"] == "gene":
+            g_id = e["id"]
 
     return g_id
 
@@ -79,7 +80,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         url_path = urlparse(self.path)
         path = url_path.path
         arguments = parse_qs(url_path.query)
-        json_requested = "json" in arguments and arguments["json"][0] == "1"
+
+        json_requested = False
+        if arguments.get("json") and arguments.get("json")[0] == "1":
+            json_requested = True
+
+        content_type = 'text/html'
+
+        if json_requested:
+            content_type = 'application/json'
+
         contents = ""
 
         if path == "/":
@@ -91,68 +101,102 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         else:
             try:
+                error_code = 200
                 if path == "/listSpecies":
-                    contents = read_html_file("listSpecies.html")
                     endpoint = "/info/species"
                     species = c(endpoint)
                     all_species = species["species"]
                     limit = arguments.get("limit")
 
                     if limit:
-                        limit = limit[0]
+                        limit = int(limit[0])
                     else:
                         limit = len(all_species)
+                    print(limit)
+                    l_names = []
+                    for e in all_species[:limit]:
+                        l_names.append(e["display_name"])
 
-                    names = ""
-                    for i in range(int(limit)):
-                        s = all_species[i]
-                        n = s["display_name"]
-                        names += f"-{n}<br>"
+                    if json_requested:
+                        contents = json.dumps({"species_names": l_names})
 
-                    contents = contents.render(context={"allspecies": len(all_species), "limit": limit, "names": names})
+                    else:
+                        contents = read_html_file("listSpecies.html")
+                        names = ""
+                        for s in l_names:
+                            names += f"-{s}<br>"
+
+                        contents = contents.render(context={"allspecies": len(all_species), "limit": limit,
+                                                            "names": names})
 
                 elif path == "/karyotype":
-                    contents = read_html_file("karyotype.html")
-                    species_name = arguments.get("species")[0]
-                    species_name = species_name.replace(" ", "_")
-                    endpoint = f"/info/assembly/{species_name}"
+                    species_name = arguments.get("species")[0].lower()
+                    name = species_name.replace(" ", "_")
+                    endpoint = f"/info/assembly/{name}"
                     species = c(endpoint)
                     karyotype = species["karyotype"]
-                    k_names = ""
-                    for k in karyotype:
-                        k_names += f"{k}<br>"
-                    contents = contents.render(context={"k_names": k_names})
+
+                    if json_requested:
+                        contents = {"species": species_name, "karyotype": karyotype}
+                        contents = json.dumps(contents)
+
+                    else:
+                        contents = read_html_file("karyotype.html")
+                        k_names = ""
+                        for k in karyotype:
+                            k_names += f"{k}<br>"
+                        contents = contents.render(context={"k_names": k_names, "species": species_name})
 
                 elif path == "/chromosomeLength":
-                    contents = read_html_file("chromosome.html")
                     species_name = arguments.get("species")[0].lower()
-                    species_name = species_name.replace(" ", "_")
-                    endpoint = f"/info/assembly/{species_name}"
+                    name = species_name.replace(" ", "_")
+                    endpoint = f"/info/assembly/{name}"
                     species = c(endpoint)
                     c_name = arguments.get("chromo")[0]
 
-                    tlr = species.get("top_level_region")
+                    tlr = species["top_level_region"]
                     length = 0
                     for e in tlr:
-                        name = e.get("name")
-                        cs = e.get("coord_system")
-                        if cs == "chromosome" and name == c_name:
-                            length = e.get("length")
+                        name = e["name"]
+                        if name == c_name:
+                            length = e["length"]
+                            break
 
-                    contents = contents.render(context={"len": length})
+                    if json_requested:
+                        if length == 0:
+                            contents = {"error": "The data you entered does not exist in the ensembl"}
+                        else:
+                            contents = {"species": species_name, "chromo": c_name, "length": length}
+
+                        contents = json.dumps(contents)
+
+                    else:
+                        if length == 0:
+                            contents = Path("error.html").read_text()
+                            error_code = 404
+
+                        else:
+                            contents = read_html_file("chromosome.html")
+                            contents = contents.render(context={"species": species_name, "chromo": c_name,
+                                                                "len": length})
 
                 elif path == "/geneSeq":
-                    contents = read_html_file("geneSeq.html")
                     g_name = arguments.get("gene")[0]
                     g_id = get_gene_id(g_name)
 
                     endpoint = f"/sequence/id/{g_id}"
                     gene = c(endpoint)
                     seq = gene["seq"]
-                    contents = contents.render(context={"gene": seq, "name": g_name})
+
+                    if json_requested:
+                        contents = {"name": g_name, "seq": seq}
+                        contents = json.dumps(contents)
+
+                    else:
+                        contents = read_html_file("geneSeq.html")
+                        contents = contents.render(context={"gene": seq, "name": g_name})
 
                 elif path == "/geneInfo":
-                    contents = read_html_file("geneInfo.html")
                     g_name = arguments.get("gene")[0]
                     g_id = get_gene_id(g_name)
 
@@ -163,10 +207,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     chromo = info.get("seq_region_name")
                     length = int(end) - int(start) + 1
 
-                    contents = contents.render(context={"name": g_name, "start": start, "end": end, "chromo": chromo,
-                                                        "length": length, "id": g_id})
+                    if json_requested:
+                        contents = {"name": g_name, "id": g_id, "start": start, "end": end, "chromo": chromo,
+                                    "length": length}
+                        contents = json.dumps(contents)
+
+                    else:
+                        contents = read_html_file("geneInfo.html")
+                        contents = contents.render(
+                            context={"name": g_name, "start": start, "end": end, "chromo": chromo,
+                                     "length": length, "id": g_id})
+
                 elif path == "/geneCalc":
-                    contents = read_html_file("geneCalc.html")
                     g_name = arguments.get("gene")[0]
                     g_id = get_gene_id(g_name)
 
@@ -179,14 +231,19 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     p_dict = {"A": seq.percentage("A"), "T": seq.percentage("T"), "G": seq.percentage("G"),
                               "C": seq.percentage("C")}
 
-                    percentages = ""
-                    for b in p_dict:
-                        percentages += f"{b}: {p_dict[b]} <br>"
+                    if json_requested:
+                        contents = {"name": g_name, "length": length, "percentages": p_dict}
+                        contents = json.dumps(contents)
 
-                    contents = contents.render(context={"length": length, "percentages": percentages, "name": g_name})
+                    else:
+                        contents = read_html_file("geneCalc.html")
+                        percentages = ""
+                        for b in p_dict:
+                            percentages += f"{b}: {p_dict[b]} <br>"
 
-                elif path == "/geneList": #arreglar
-                    contents = read_html_file("geneList.html")
+                        contents = contents.render(context={"length": length, "percentages": percentages, "name": g_name})
+
+                elif path == "/geneList":
                     chromo = arguments.get("chromo")[0]
                     start = arguments.get("start")[0]
                     end = arguments.get("end")[0]
@@ -195,27 +252,42 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     extra_params = "feature=gene;feature=transcript;feature=cds;feature=exon;"
 
                     region = c(endpoint, extra_params)
-                    print(region)
+
                     names_list = []
                     for e in region:
-                        if e.get("feature_type") == "gene":
+                        if e["feature_type"] == "gene":
                             if e.get("external_name"):
                                 names_list.append(e.get("external_name"))
-                    #añadir que pasa si esta vacia la lista
-                    names = ""
-                    for g in names_list:
-                        names += f"- {g} <br>"
 
-                    contents = contents.render(context={"chromo": chromo, "start": start, "end": end, "genes": names})
+                    if len(names_list) == 0:
+                        names_list = ["No genes in the selected region"]
 
-                self.send_response(200)
+                    if json_requested:
+                        contents = {"chromo": chromo, "start": start, "end": end, "genes": names_list}
+                        contents = json.dumps(contents)
 
-            except (FileNotFoundError, TypeError, IndexError, ConnectionRefusedError, KeyError, AttributeError):
-                contents = Path("error.html").read_text()
+                    else:
+                        contents = read_html_file("geneList.html")
+                        names = ""
+                        for g in names_list:
+                            names += f"- {g} <br>"
+
+                        contents = contents.render(context={"chromo": chromo, "start": start, "end": end, "genes": names})
+
+                self.send_response(error_code)
+
+            except (FileNotFoundError, TypeError, IndexError, ConnectionRefusedError, KeyError, AttributeError,
+                    ValueError):
+                if json_requested:
+                    contents = {"error": "The data you entered does not exist in the ensembl"}
+
+                else:
+                    contents = Path("error.html").read_text()
+
                 self.send_response(404)
 
         # Define the content-type header:
-        self.send_header('Content-Type', 'text/html')
+        self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', len(str.encode(contents)))
 
         # The header is finished
