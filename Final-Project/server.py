@@ -50,7 +50,7 @@ def c(endpoint, extra_params=""):
 
 
 def read_html_file(filename):
-    contents = Path(filename).read_text()
+    contents = Path(f"html/{filename}").read_text()
     contents = j.Template(contents)
     return contents
 
@@ -94,7 +94,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         if path == "/":
             # Open the form1.html file
-            contents = Path('main_page.html').read_text()
+            contents = Path('html/main_page.html').read_text()
 
             # Generating the response message
             self.send_response(200)  # -- Status line: OK!
@@ -112,7 +112,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         limit = int(limit[0])
                     else:
                         limit = len(all_species)
-                    print(limit)
+
                     l_names = []
                     for e in all_species[:limit]:
                         l_names.append(e["display_name"])
@@ -172,7 +172,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                     else:
                         if length == 0:
-                            contents = Path("error.html").read_text()
+                            contents = Path("html/error.html").read_text()
                             error_code = 404
 
                         else:
@@ -282,7 +282,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = {"error": "The data you entered does not exist in the ensembl"}
 
                 else:
-                    contents = Path("error.html").read_text()
+                    contents = Path("html/error.html").read_text()
 
                 self.send_response(404)
 

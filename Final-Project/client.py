@@ -8,7 +8,7 @@ def client(endpoint, params=""):
     port = 8080
     server = 'localhost'
 
-    print(f"\nConnecting to server: {server}:{port}\n")
+    print(f"\nConnecting to server: {server}:{port}")
 
     # Connect with the server
     conn = http.client.HTTPConnection(server, port)
@@ -48,11 +48,13 @@ def list_species(limit=None):
         params = f"limit={limit}&"
     else:
         params = ""
+        limit = 324
 
     response = client("/listSpecies", params)
     response = handle_response(response)
     if response:
         species_names = response.get("species_names")
+        termcolor.cprint("LIST OF SPECIES", "green")
         print(f"The limit you have selected is: {limit}")
         print("List of species:")
         for name in species_names:
@@ -63,6 +65,7 @@ def karyotype(species):
     response = client("/karyotype", f"species={species}&")
     response = handle_response(response)
     if response:
+        termcolor.cprint("KARYOTYPE", "green")
         print(f"Karyotype for {species}:")
         karyotype = response.get("karyotype")
         for k in karyotype:
@@ -74,6 +77,7 @@ def chromosome_length(species, chromo):
     response = handle_response(response)
     if response:
         length = response.get("length")
+        termcolor.cprint("CHROMOSOME LENGTH", "green")
         print(f"Length of chromosome {chromo} in {species}: {length}")
 
 
@@ -82,6 +86,7 @@ def gene_sequence(gene):
     response = handle_response(response)
     if response:
         seq = response.get("seq")
+        termcolor.cprint("GENE SEQUENCE", "green")
         print(f"Sequence of gene {gene}: {seq}")
 
 
@@ -89,6 +94,7 @@ def gene_info(gene):
     response = client("/geneInfo", f"gene={gene}&")
     response = handle_response(response)
     if response:
+        termcolor.cprint("GENE INFO", "green")
         print(f"Information for gene {gene}:\n")
         for key in response:
             print(f"{key.capitalize()}: {response.get(key)}")
@@ -98,9 +104,11 @@ def gene_calc(gene):
     response = client("/geneCalc", f"gene={gene}&")
     response = handle_response(response)
     if response:
-        print(f"Calculations for gene {gene}:\n")
+        termcolor.cprint("GENE CALCULATIONS", "green")
+        print(f"Calculations for gene {gene}:")
         for key in response:
-            print(f"{key.capitalize()}: {response.get(key)}")
+            if key != "name":
+                print(f"{key.capitalize()}: {response.get(key)}")
 
 
 def gene_list(chromo, start, end):
@@ -108,18 +116,17 @@ def gene_list(chromo, start, end):
     response = handle_response(response)
     if response:
         genes = response.get("genes")
+        termcolor.cprint("GENES LIST", "green")
         print(f"Genes in region {chromo}:{start}-{end}:")
         for gene in genes:
             print(f"- {gene}")
 
 
-#list_species(10)
-#list_species()
-#karyotype("mouse")
-#chromosome_length("mouse", "18")
-#gene_sequence("FRAT1")
+list_species(10)
+list_species()
+karyotype("mouse")
+chromosome_length("mouse", "18")
+gene_sequence("FRAT1")
 gene_info("FRAT1")
 gene_calc("FRAT1")
 gene_list("9", 22125500, 22136000)
-
-#igual añadir que las keys de los diccionarios sean los nombres de los genes
