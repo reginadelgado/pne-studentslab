@@ -62,6 +62,18 @@ def get_gene_id(gene_name):
     return g_id
 
 
+def scientific_name(name):  # use in case that the name introduced doesn't work search for the scientific one
+    endpoint = "/info/species"
+    species = c(endpoint)
+    s_name = ""
+    name = name.lower()
+    for s in species["species"]:
+        if name == s["display_name"].lower() or name == s["common_name"].lower() or name in s["aliases"]:
+            s_name = s["name"]
+
+    return s_name
+
+
 # Class with our Handler. It is a called derived from BaseHTTPRequestHandler
 # It means that our class inherits all his methods and properties
 class TestHandler(http.server.BaseHTTPRequestHandler):
@@ -128,6 +140,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     name = species_name.replace(" ", "_")
                     endpoint = f"/info/assembly/{name}"
                     species = c(endpoint)
+
+                    if "error" in species:
+                        s_name = scientific_name(species_name)
+                        endpoint = f"/info/assembly/{s_name}"
+                        species = c(endpoint)
+
                     karyotype = species["karyotype"]
 
                     if json_requested:
@@ -147,6 +165,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     endpoint = f"/info/assembly/{name}"
                     species = c(endpoint)
                     c_name = arguments.get("chromo")[0]
+
+                    if "error" in species:
+                        s_name = scientific_name(species_name)
+                        endpoint = f"/info/assembly/{s_name}"
+                        species = c(endpoint)
 
                     tlr = species["top_level_region"]
                     length = 0
