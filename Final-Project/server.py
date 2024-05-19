@@ -20,14 +20,10 @@ def c(endpoint, extra_params=""):
     server = "rest.ensembl.org"
     params = f"?{extra_params}content-type=application/json"
 
-    url = server + endpoint + params
-    # print(url)
-
     # Connect with the server
     conn = http.client.HTTPConnection(server)
 
-    # -- Send the request message, using the GET method. We are
-    # -- requesting the main page (/)
+    # -- Send the request message, using the GET method.
     try:
         conn.request("GET", endpoint + params)
     except ConnectionRefusedError:
@@ -93,10 +89,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         contents = ""
 
         if path == "/":
-            # Open the form1.html file
             contents = Path('html/main_page.html').read_text()
 
-            # Generating the response message
             self.send_response(200)  # -- Status line: OK!
 
         else:
@@ -241,7 +235,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         for b in p_dict:
                             percentages += f"{b}: {p_dict[b]} <br>"
 
-                        contents = contents.render(context={"length": length, "percentages": percentages, "name": g_name})
+                        contents = contents.render(context={"length": length, "percentages": percentages,
+                                                            "name": g_name})
 
                 elif path == "/geneList":
                     chromo = arguments.get("chromo")[0]
@@ -272,7 +267,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         for g in names_list:
                             names += f"- {g} <br>"
 
-                        contents = contents.render(context={"chromo": chromo, "start": start, "end": end, "genes": names})
+                        contents = contents.render(context={"chromo": chromo, "start": start, "end": end,
+                                                            "genes": names})
 
                 self.send_response(error_code)
 
