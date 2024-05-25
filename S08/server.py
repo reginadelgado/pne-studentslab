@@ -3,8 +3,8 @@ import socket
 # Configure the Server's IP and PORT
 #IP uni: 212.128.255.82
 #IP casa: 192.168.1.46
-PORT = 8081
-IP = "192.168.1.46" # it depends on the machine the server is running
+PORT = 8080
+IP = "127.0.0.1" # it depends on the machine the server is running
 MAX_OPEN_REQUESTS = 5
 
 # Counting the number of connections
