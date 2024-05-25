@@ -39,7 +39,7 @@ def process_client(s, list):
         status_line = "HTTP/1.1 200 OK\n"
 
     else:
-        body = Path(f"html/info/error.html").read_text()
+        body = Path(f"html/error.html").read_text()
         status_line = "HTTP/1.1 404 Not Found\n"
 
     # -- Add the Content-Type header
