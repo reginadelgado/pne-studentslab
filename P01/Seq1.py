@@ -78,7 +78,7 @@ class Seq:
 
     def read_fasta(self, filename):
         from pathlib import Path
-        folder = "sequences/"
+        folder = "../P01/sequences/"
         file_contents = Path(folder + filename).read_text()
 
         first_line = file_contents.find("\n")
